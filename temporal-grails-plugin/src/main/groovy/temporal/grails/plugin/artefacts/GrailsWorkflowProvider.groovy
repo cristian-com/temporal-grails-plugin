@@ -1,7 +1,6 @@
 package temporal.grails.plugin.artefacts
 
 import groovy.transform.CompileStatic
-import io.temporal.api.common.v1.WorkflowExecution
 import io.temporal.client.WorkflowClient
 import io.temporal.workflow.Functions
 import io.temporal.workflow.WorkflowInterface
@@ -9,21 +8,23 @@ import io.temporal.workflow.WorkflowMethod
 import org.reflections.Reflections
 import org.reflections.scanners.Scanners
 import org.reflections.util.ConfigurationBuilder
+import temporal.grails.plugin.test.moneytransferapp.InitiateMoneyTransfer
 
 import java.lang.reflect.Method
 
 class GrailsWorkflowProvider {
 
     private Reflections reflections
-    private Class theInterface
     private Map<Class<?>, List<Method>> workflowMapping = new HashMap()
     private Closure workflowMethod
     private String workflowMethodName
+    private Class theInterface
 
     private GrailsWorkflowProvider(Class<?> theClass) {
         reflections = new Reflections(
                 new ConfigurationBuilder()
                         .addScanners(Scanners.MethodsAnnotated)
+                        .addScanners(Scanners.SubTypes)
                         .forPackage("temporal.grails.plugin.test"))
 
         resolveWorkflowInterface(theClass)
@@ -62,7 +63,7 @@ class GrailsWorkflowProvider {
     }
 
     @CompileStatic
-    private <T> T getTemporalProxy (Class<T> clazz) {
+    private <T> T getTemporalProxy(Class<T> clazz) {
         return (WorkflowClient.newInstance(null)).newWorkflowStub(theInterface, "") as T
     }
 
@@ -74,7 +75,7 @@ class GrailsWorkflowProvider {
         Set<Method> workflowMethods = reflections.get(Scanners.MethodsAnnotated.with(WorkflowMethod).as(Method))
 
         if (!workflowMethods) {
-            // This is miss-configuration, we should fail now and probably later make it configurable
+            // This is miss-configuration, here will fail but probably later make it configurable
             throw new IllegalStateException("The workflow has more than one method annotated with 'WorkflowMethod'")
         }
 
@@ -105,13 +106,16 @@ class GrailsWorkflowProvider {
 
     private void resolveWorkflowMethod() {
         Method workflowMetaMethod = (workflowMapping.get(WorkflowMethod) as List<Method>).first()
-        boolean isFunction = workflowMetaMethod.returnType != Void.class
+        boolean isFunction = workflowMetaMethod.returnType != void
 
         workflowMethodName = workflowMetaMethod.getName()
 
         switch (workflowMetaMethod.parameterCount) {
             case 1:
-                oneArgMethod(isFunction)
+                fourArgMethod(isFunction)
+                break
+            case 4:
+                fourArgMethod(isFunction)
                 break
         }
     }
@@ -128,8 +132,18 @@ class GrailsWorkflowProvider {
         }
     }
 
-    static <A1, R> WorkflowExecution start(Functions.Func1<A1, R> workflow, A1 arg1) {
-        return WorkflowExecution.newInstance()
+    private void fourArgMethod(boolean function) {
+        if (function) {
+            this.workflowMethod = { arg0 ->
+                return WorkflowClient.start(theInterface.&workflowMethodName as Functions.Func1<?, ?, ?, ?, ?>, arg0)
+            }
+        } else {
+            this.workflowMethod = { arg0 ->
+                def stub = InitiateMoneyTransfer.getClient().newWorkflowStub(theInterface, InitiateMoneyTransfer.getOptions())
+                def method = stub.&"${workflowMethodName}" as Functions.Proc4<?, ?, ?, ?>
+                return WorkflowClient.start(method, arg0[0], arg0[1], arg0[2], arg0[3])
+            }
+        }
     }
 
 }

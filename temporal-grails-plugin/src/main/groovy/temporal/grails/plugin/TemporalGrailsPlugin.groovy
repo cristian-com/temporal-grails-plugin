@@ -21,7 +21,7 @@ class TemporalGrailsPlugin extends Plugin {
 Brief summary/description of the plugin.
 '''
 
-    def artefacts = [] as List<ArtefactHandler>
+    List<ArtefactHandler> artefacts = []
 
     // URL to the plugin's documentation
     def documentation = "http://grails.org/plugin/temporal-grails-plugin"
