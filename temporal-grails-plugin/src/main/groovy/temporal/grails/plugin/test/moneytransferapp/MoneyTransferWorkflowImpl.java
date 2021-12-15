@@ -35,7 +35,6 @@ public class MoneyTransferWorkflowImpl implements MoneyTransferWorkflow {
     // Activity method executions can be orchestrated here or from within other Activity methods.
     @Override
     public void transfer(String fromAccountId, String toAccountId, String referenceId, double amount) {
-
         account.withdraw(fromAccountId, referenceId, amount);
         account.deposit(toAccountId, referenceId, amount);
     }

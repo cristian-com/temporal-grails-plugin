@@ -8,10 +8,12 @@ import io.temporal.workflow.WorkflowMethod
 import org.reflections.Reflections
 import org.reflections.scanners.Scanners
 import org.reflections.util.ConfigurationBuilder
+import org.springframework.stereotype.Service
 import temporal.grails.plugin.test.moneytransferapp.InitiateMoneyTransfer
 
 import java.lang.reflect.Method
 
+@Service
 class GrailsWorkflowProvider {
 
     private Reflections reflections
@@ -24,7 +26,6 @@ class GrailsWorkflowProvider {
         reflections = new Reflections(
                 new ConfigurationBuilder()
                         .addScanners(Scanners.MethodsAnnotated)
-                        .addScanners(Scanners.SubTypes)
                         .forPackage("temporal.grails.plugin.test"))
 
         resolveWorkflowInterface(theClass)
@@ -51,9 +52,9 @@ class GrailsWorkflowProvider {
 
         proxy.metaClass.getProperty = { name -> throw new IllegalAccessException() }
         proxy.metaClass.setProperty = { name -> throw new IllegalAccessException() }
-        proxy.metaClass.invokeMethod = { String name, Object args ->
+        proxy.metaClass.invokeMethod = { String name, args ->
             if (workflowMethodName == name) {
-                return workflowMethod(args)
+                return workflowMethod(args as Object[])
             } else {
                 throw new IllegalAccessException()
             }
@@ -127,21 +128,22 @@ class GrailsWorkflowProvider {
             }
         } else {
             this.workflowMethod = { arg0 ->
-                return start(theInterface.&workflowMethodName as Functions.Proc1<?, ?>, arg0)
+                return start(theInterface.&workflowMethodName as Functions.Proc1<?>, arg0)
             }
         }
     }
 
     private void fourArgMethod(boolean function) {
         if (function) {
-            this.workflowMethod = { arg0 ->
-                return WorkflowClient.start(theInterface.&workflowMethodName as Functions.Func1<?, ?, ?, ?, ?>, arg0)
+            this.workflowMethod = { Objects[] args ->
+                return WorkflowClient.start(theInterface.&workflowMethodName as Functions.Func1<Object, Object>, arg0)
             }
         } else {
-            this.workflowMethod = { arg0 ->
+            this.workflowMethod = { Object[] args ->
                 def stub = InitiateMoneyTransfer.getClient().newWorkflowStub(theInterface, InitiateMoneyTransfer.getOptions())
-                def method = stub.&"${workflowMethodName}" as Functions.Proc4<?, ?, ?, ?>
-                return WorkflowClient.start(method, arg0[0], arg0[1], arg0[2], arg0[3])
+                def method = stub.&"${workflowMethodName}"
+                return WorkflowClient.start(method as Functions.Proc4<Object, Object, Object, Object>,
+                        args[0], args[1], args[2], args[3])
             }
         }
     }
