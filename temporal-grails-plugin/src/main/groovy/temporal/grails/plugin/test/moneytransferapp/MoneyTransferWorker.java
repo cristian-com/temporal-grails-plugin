@@ -14,7 +14,7 @@ public class MoneyTransferWorker {
         WorkflowClient client = WorkflowClient.newInstance(service);
         // Worker factory is used to create Workers that poll specific Task Queues.
         WorkerFactory factory = WorkerFactory.newInstance(client);
-        Worker worker = factory.newWorker(Shared.MONEY_TRANSFER_TASK_QUEUE);
+        Worker worker = factory.newWorker("");
         // This Worker hosts both Workflow and Activity implementations.
         // Workflows are stateful so a type is needed to create instances.
         worker.registerWorkflowImplementationTypes(MoneyTransferWorkflowImpl.class);

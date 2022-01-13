@@ -4,6 +4,7 @@ import groovy.transform.CompileStatic
 import groovy.util.logging.Commons
 import io.temporal.client.WorkflowClient
 import io.temporal.serviceclient.WorkflowServiceStubs
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
 @Service

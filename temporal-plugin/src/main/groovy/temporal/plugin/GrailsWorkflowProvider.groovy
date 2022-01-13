@@ -1,6 +1,5 @@
-package temporal.grails.plugin.artefacts
+package temporal.plugin
 
-import groovy.transform.CompileStatic
 import io.temporal.client.WorkflowClient
 import io.temporal.workflow.Functions
 import io.temporal.workflow.WorkflowInterface
@@ -8,12 +7,9 @@ import io.temporal.workflow.WorkflowMethod
 import org.reflections.Reflections
 import org.reflections.scanners.Scanners
 import org.reflections.util.ConfigurationBuilder
-import org.springframework.stereotype.Service
-import temporal.grails.plugin.test.moneytransferapp.InitiateMoneyTransfer
 
 import java.lang.reflect.Method
 
-@Service
 class GrailsWorkflowProvider {
 
     private Reflections reflections
@@ -42,7 +38,7 @@ class GrailsWorkflowProvider {
 
     private <T> T getProxy(boolean temporalProxy = false) {
         if (temporalProxy) {
-            return WorkflowClient.newWorkflowStub(theInterface, "" as String) as T
+            return grailsTemporalClient.newWorkflowStub(theInterface, "" as String) as T
         }
 
         T proxy = {}.asType(theInterface) as T
@@ -60,7 +56,6 @@ class GrailsWorkflowProvider {
         return proxy
     }
 
-    @CompileStatic
     private <T> T getTemporalProxy(Class<T> clazz) {
         return (WorkflowClient.newInstance(null)).newWorkflowStub(theInterface, "") as T
     }
@@ -116,7 +111,7 @@ class GrailsWorkflowProvider {
     private void fourArgMethod(boolean function) {
         if (function) {
             this.workflowMethod = { Objects[] args ->
-                return WorkflowClient.start(theInterface.&workflowMethodName as Functions.Func1<Object, Object>, arg0)
+                return WorkflowClient.start(theInterface.&(this.workflowMethodName) as Functions.Func1<Object, Object>, args[0])
             }
         } else {
             this.workflowMethod = { Object[] args ->
