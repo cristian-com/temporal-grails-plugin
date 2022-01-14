@@ -9,7 +9,6 @@ class BeanDefinitionWrapper {
     @Delegate
     final BeanDefinition beanDefinition
     private Class<?> theClass
-    private RuntimeBeanReference runtimeBeanReference
 
     private BeanDefinitionWrapper(BeanDefinition beanDefinition) {
         this.beanDefinition = beanDefinition
