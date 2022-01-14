@@ -29,7 +29,6 @@ class WorkerBeansFactory implements BeanDefinitionRegistryPostProcessor {
     void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
         springBeanFactory = beanFactory
         def e = springBeanFactory.getBean(ActivityEx)
-        createWorkers()
     }
 
     @Override
@@ -38,42 +37,55 @@ class WorkerBeansFactory implements BeanDefinitionRegistryPostProcessor {
         registerActivities(activities, registry)
 
         Map<Class<?>, Set<BeanDefinitionWrapper>> workflows = BeanImplementationsScanner.scanWorkflows(registry)
-        registerWorkflows(workflows, registry)
+        registerWorkflows(workflows)
     }
 
-    private void registerWorkflows(Map<Class<?>, Set<BeanDefinitionWrapper>> workflows,
-                                   BeanDefinitionRegistry registry) {
-        workflows.each { activityInterface, beanDefinitions ->
+    private void registerWorkflows(Map<Class<?>, Set<BeanDefinitionWrapper>> workflowImplementations) {
+        workflowImplementations.each { activityInterface, beanDefinitions ->
             beanDefinitions.each { beanDefinition ->
-                Map<String, RuntimeBeanReference> dependencies = new HashMap<>()
+                Map<String, Object> dependencies = new HashMap<>()
                 Map<String, Class<?>> activities = new HashMap<>()
 
                 beanDefinition.resolveBeanClass().getDeclaredFields().each { Field field ->
-                    if (field.isAnnotationPresent(Autowired)) {
-                        if (workflowContext.activityExists(field.type)) {
-                            log.error("The field ${field.name} in the activity ${field.type.name} " +
-                                    "can not be another activity.")
-                            throw new IllegalStateException()
+                    Class<?> activity = workflowContext.activityExists(field.type)
+
+                    if (activity) {
+                        if (field.isAnnotationPresent(Qualifier) || field.isAnnotationPresent(Autowired)) {
+                            log.error("Remove @Qualifier or @Autowired annotations from property: ${field.name}, " +
+                                    "class: ${workflowContext.getActivityImplementation(activity)}. \n" +
+                                    "This is better to be avoided, the workflow will be loaded automatically to Grails. ")
+                            throw new IllegalArgumentException("Activities can not be annotated with @Autowired or " +
+                                    "@Qualifier in workflows.")
                         }
 
-                        if (field.isAnnotationPresent(Qualifier)) {
-                            String qualifier = field.getAnnotation(Qualifier).value()
-                            if (registry.containsBeanDefinition(qualifier)) {
-                                dependencies.put(field.name, new RuntimeBeanReference(qualifier))
-                            }
-                        } else {
-
-                        }
-                    } else if (workflowContext.activityExists(field.type)) {
-                        dependencies.put
+                        activities.put(field.name, activity)
+                        return
                     }
 
-                    if (beansRegistry.containsBeanDefinition(field.getName())) {
-                        dependencies.put(field.getName(), new RuntimeBeanReference(field.getName()))
+                    if (field.isAnnotationPresent(Qualifier)) {
+                        String qualifier = field.getAnnotation(Qualifier)
+                        def bean = springBeanFactory.getBean(qualifier)
+                        if (!bean) {
+                            throw new IllegalStateException("Not bean found with name ${qualifier} in class" +
+                                    " ${workflowContext.getActivityImplementation(activity)}.")
+                        }
+
+                        dependencies.put(field.name, qualifier)
+                    }
+
+                    if (field.isAnnotationPresent(Autowired)) {
+                        def bean = springBeanFactory.getBean(field.type)
+                        if (!bean) {
+                            throw new IllegalStateException("Not bean found with name ${qualifier} in class" +
+                                    " ${workflowContext.getActivityImplementation(activity)}.")
+                        }
+
+                        dependencies.put(field.name, field.type)
                     }
                 }
 
-                workflowContext.addWorkflow(activityInterface, beanDefinition.resolveBeanClass())
+                workflowContext.addWorkflow(activityInterface, beanDefinition.resolveBeanClass(),
+                        activities, dependencies)
             }
         }
     }
@@ -96,8 +108,8 @@ class WorkerBeansFactory implements BeanDefinitionRegistryPostProcessor {
         }
     }
 
-    private static BeanDefinition configureActivityBeanDefinition(BeanDefinitionWrapper beanDefinitionWrapper,
-                                                                  BeanDefinitionRegistry registry) {
+    private static void configureActivityBeanDefinition(BeanDefinitionWrapper beanDefinitionWrapper,
+                                                        BeanDefinitionRegistry registry) {
         Map<String, RuntimeBeanReference> dependencies = getActivityDependencies(beanDefinitionWrapper.resolveBeanClass(),
                 registry)
 
@@ -106,10 +118,10 @@ class WorkerBeansFactory implements BeanDefinitionRegistryPostProcessor {
         }
 
         beanDefinitionWrapper.setLazyInit(false)
-        return beanDefinitionWrapper.beanDefinition
     }
 
-    private static Map<String, RuntimeBeanReference> getActivityDependencies(Class<?> target, BeanDefinitionRegistry beansRegistry) {
+    private static Map<String, RuntimeBeanReference> getActivityDependencies(Class<?> target,
+                                                                             BeanDefinitionRegistry beansRegistry) {
         Map<String, RuntimeBeanReference> dependencies = new HashMap<>()
 
         target.getDeclaredFields().each { Field field ->

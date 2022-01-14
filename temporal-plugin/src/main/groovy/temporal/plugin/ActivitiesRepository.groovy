@@ -31,12 +31,12 @@ class ActivitiesRepository {
         return beanName
     }
 
-    boolean interfaceExists(Class<?> activity) {
-        return interfaceByDescriptor.containsKey(activity)
+    Class<?> findImplementationByInterface(Class<?> activity) {
+        return interfaceByDescriptor.get(activity).theImplementation
     }
 
-    boolean implementationExists(Class<?> activity) {
-        return implementationByDescriptor.containsKey(activity)
+    Class<?> findInterfaceByImpl(Class<?> activity) {
+        return implementationByDescriptor.get(activity).theInterface
     }
 
     static class ElementDescriptor {

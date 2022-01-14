@@ -6,11 +6,12 @@ class WorkflowsRepository {
     private final Map<Class<?>, ElementDescriptor> interfaceByDescriptor = new HashMap<>()
 
     void addDescriptor(Class<?> activityInterface, Class<?> theImplementation,
-                         List<Class<?>> activities) {
+                       Map<String, Class<?>> activities, Map<String, Object> dependencies) {
         ElementDescriptor descriptor = new ElementDescriptor(
                 theImplementation: theImplementation,
                 theInterface: activityInterface,
-                activities: activities
+                activities: activities,
+                dependencies: dependencies
         )
 
         interfaceByDescriptor.put(activityInterface, descriptor)
@@ -28,7 +29,8 @@ class WorkflowsRepository {
     static class ElementDescriptor {
         Class theInterface
         Class theImplementation
-        List<Class> activities
+        Map<String, Object> dependencies
+        Map<String, Class<?>> activities
     }
 
 }

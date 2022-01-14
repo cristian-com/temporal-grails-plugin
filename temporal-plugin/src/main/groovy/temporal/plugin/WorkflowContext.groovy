@@ -10,17 +10,22 @@ class WorkflowContext {
     ActivitiesRepository activitiesRepository = new ActivitiesRepository()
     WorkflowsRepository workflowsRepository = new WorkflowsRepository()
 
-    void addWorkflow(Class<?> activityInterface, Class<?> theImplementation,
-                     List<Class<?>> activities) {
-        workflowsRepository.addDescriptor(activityInterface, theImplementation, activities)
+    void addWorkflow(Class<?> activityInterface, Class<?> theImplementation, Map<String, Class<?>> activities,
+                     Map<String, Object> dependencies) {
+        workflowsRepository.addDescriptor(activityInterface, theImplementation, activities, dependencies)
     }
 
-    boolean activityExists(Class<?> activity) {
+    Class activityExists(Class<?> activity) {
         if (activity.isInterface()) {
-            activitiesRepository.interfaceExists(activity)
+            activitiesRepository.findImplementationByInterface(activity)
+            return activity
         } else {
-            activitiesRepository.implementationExists(activity)
+            return activitiesRepository.findInterfaceByImpl(activity)
         }
+    }
+
+    Class getActivityImplementation(Class<?> activity) {
+        return activitiesRepository.findImplementationByInterface(activity)
     }
 
     String addActivity(Class<?> activityInterface, Class<?> theImplementation) {
