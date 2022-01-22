@@ -1,6 +1,5 @@
-package another.one;
+package grails.plugin.temporal.compiler;
 
-import grails.compiler.workflows.ActivityStubFactoryBridge;
 import groovy.transform.CompileStatic;
 import org.codehaus.groovy.GroovyBugError;
 import org.codehaus.groovy.ast.ASTNode;
@@ -9,14 +8,13 @@ import org.codehaus.groovy.ast.ClassNode;
 import org.codehaus.groovy.ast.FieldNode;
 import org.codehaus.groovy.ast.expr.StaticMethodCallExpression;
 import org.codehaus.groovy.ast.tools.GeneralUtils;
-import org.codehaus.groovy.control.CompilePhase;
 import org.codehaus.groovy.control.SourceUnit;
 import org.codehaus.groovy.transform.AbstractASTTransformation;
 import org.codehaus.groovy.transform.GroovyASTTransformation;
 
 @CompileStatic
-@GroovyASTTransformation(phase = CompilePhase.CANONICALIZATION)
-public class WorkflowInitializer extends AbstractASTTransformation {
+@GroovyASTTransformation
+public class ActivityStubInjector extends AbstractASTTransformation {
 
     private static final ClassNode ACTIVITY_FACTORY = ClassHelper.make(ActivityStubFactoryBridge.class);
 
@@ -24,7 +22,7 @@ public class WorkflowInitializer extends AbstractASTTransformation {
     public void visit(ASTNode[] nodes, SourceUnit source) {
         init(nodes, source);
         if (!(nodes[1] instanceof FieldNode)) {
-            throw new GroovyBugError("Somehow the " + WorkflowInitializer.class.getName() +
+            throw new GroovyBugError("Somehow the " + ActivityStubInjector.class.getName() +
                     " AST transformation is being applied to something that is not a field.");
         }
 

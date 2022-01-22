@@ -1,4 +1,4 @@
-package temporal.plugin
+package grails.plugin.temporal
 
 class BeanArgsWrapper {
 

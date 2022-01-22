@@ -1,4 +1,4 @@
-package temporal.plugin
+package grails.plugin.temporal
 
 import io.temporal.activity.ActivityInterface
 import io.temporal.workflow.WorkflowInterface

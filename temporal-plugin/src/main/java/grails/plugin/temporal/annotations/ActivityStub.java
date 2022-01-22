@@ -1,4 +1,4 @@
-package another.one;
+package grails.plugin.temporal.annotations;
 
 import org.codehaus.groovy.transform.GroovyASTTransformationClass;
 
@@ -7,8 +7,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Retention(RetentionPolicy.RUNTIME)
+@Retention(RetentionPolicy.SOURCE)
 @Target({ElementType.FIELD})
-@GroovyASTTransformationClass("another.one.WorkflowInitializer")
+@GroovyASTTransformationClass("grails.plugin.temporal.compiler.ActivityStubInjector")
 @interface ActivityStub {
 }

@@ -1,4 +1,4 @@
-package temporal.plugin
+package grails.plugin.temporal
 
 import io.temporal.client.WorkflowClient
 import io.temporal.workflow.Functions
@@ -87,24 +87,9 @@ class GrailsWorkflowProvider {
         workflowMethodName = workflowMetaMethod.getName()
 
         switch (workflowMetaMethod.parameterCount) {
-            case 1:
-                fourArgMethod(isFunction)
-                break
             case 4:
                 fourArgMethod(isFunction)
                 break
-        }
-    }
-
-    private void oneArgMethod(boolean function) {
-        if (function) {
-            this.workflowMethod = { arg0 ->
-                return start(theInterface.&workflowMethodName as Functions.Func1<?, ?>, arg0)
-            }
-        } else {
-            this.workflowMethod = { arg0 ->
-                return start(theInterface.&workflowMethodName as Functions.Proc1<?>, arg0)
-            }
         }
     }
 

@@ -1,4 +1,4 @@
-package temporal.plugin
+package grails.plugin.temporal
 
 import org.springframework.beans.factory.annotation.Autowired
 

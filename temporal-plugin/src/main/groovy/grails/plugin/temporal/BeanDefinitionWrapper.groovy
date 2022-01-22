@@ -1,4 +1,4 @@
-package temporal.plugin
+package grails.plugin.temporal
 
 import org.springframework.beans.factory.config.BeanDefinition
 import org.springframework.util.ClassUtils

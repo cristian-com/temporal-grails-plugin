@@ -1,4 +1,4 @@
-package temporal.plugin;
+package grails.plugin.temporal;
 
 import io.temporal.workflow.Workflow;
 import org.springframework.stereotype.Component;

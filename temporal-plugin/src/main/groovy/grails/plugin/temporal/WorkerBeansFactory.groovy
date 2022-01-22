@@ -1,4 +1,4 @@
-package temporal.plugin
+package grails.plugin.temporal
 
 import groovy.util.logging.Commons
 import org.springframework.beans.BeansException

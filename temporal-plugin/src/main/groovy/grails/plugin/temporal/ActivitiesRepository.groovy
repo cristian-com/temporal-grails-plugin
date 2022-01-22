@@ -1,4 +1,4 @@
-package temporal.plugin
+package grails.plugin.temporal
 
 import groovy.transform.CompileStatic
 import org.springframework.beans.factory.annotation.Qualifier

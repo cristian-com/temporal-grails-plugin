@@ -9,7 +9,7 @@ buildscript {
 }
 
 version "0.1"
-group "temporal.plugin"
+group "cristiancom.temporal"
 
 apply plugin:"eclipse"
 apply plugin:"idea"
