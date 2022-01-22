@@ -2,6 +2,7 @@ package temporal.plugin
 
 import grails.plugins.*
 import org.springframework.beans.factory.annotation.Autowired
+import temporal.plugin.Example
 
 class TemporalPluginGrailsPlugin extends Plugin {
 

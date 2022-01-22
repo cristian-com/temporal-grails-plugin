@@ -1,7 +1,6 @@
 package temporal.plugin
 
 import org.springframework.beans.factory.config.BeanDefinition
-import org.springframework.beans.factory.config.RuntimeBeanReference
 import org.springframework.util.ClassUtils
 
 class BeanDefinitionWrapper {

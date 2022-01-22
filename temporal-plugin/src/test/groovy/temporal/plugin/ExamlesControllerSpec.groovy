@@ -1,9 +1,8 @@
 package temporal.plugin
 
-import grails.testing.web.controllers.ControllerUnitTest
 import spock.lang.Specification
 
-class ExamlesControllerSpec extends Specification implements ControllerUnitTest<ExamlesController> {
+class ExamlesControllerSpec extends Specification  {
 
     def setup() {
     }
@@ -12,7 +11,32 @@ class ExamlesControllerSpec extends Specification implements ControllerUnitTest<
     }
 
     void "test something"() {
-        expect:"fix me"
-            true == false
+        given:
+        def script = '''
+                import  another.one.ActivityStub
+            
+                class AnotherClass {
+                    static INSTANCE = new AnotherClass()
+                    
+                    Object resolve(Class aClazz) {
+                        return ""
+                    }
+                }
+            
+                class Subject {
+                    @ActivityStub
+                    String theField
+                    
+                    def hello() {
+                        println "hello world ${theField} !!!!!!!!"
+                    }
+                }
+                def c = new Subject()
+                c.hello()
+            '''
+        def result = groovy.test.GroovyAssert.assertScript( script )
+
+        expect:
+        groovy.test.GroovyAssert.assertScript( script )
     }
 }
