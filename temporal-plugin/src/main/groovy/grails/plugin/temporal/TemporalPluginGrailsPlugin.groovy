@@ -1,62 +1,30 @@
 package grails.plugin.temporal
 
-import grails.plugins.*
-import org.springframework.beans.factory.annotation.Autowired
-import temporal.plugin.Example
+import grails.plugins.Plugin
 
 class TemporalPluginGrailsPlugin extends Plugin {
 
-    @Autowired
-    Example example
-
-    // the version or versions of Grails the plugin is designed for
     def grailsVersion = "5.1.1 > *"
+
     // resources that are excluded from plugin packaging
     def pluginExcludes = [
-        "grails-app/views/error.gsp"
+            "grails-app/views/error.gsp"
     ]
 
-    // TODO Fill in these fields
-    def title = "Temporal Plugin" // Headline display name of the plugin
-    def author = "Your name"
-    def authorEmail = ""
+    def title = "Temporal Grails Plugin"
+    def author = "Cristian Morales"
+    def authorEmail = "cristiannkb@gmail.com"
     def description = '''\
-Brief summary/description of the plugin.
-'''
-    def profiles = ['web']
+        Temporal grails integration. This plugin's goal is to provide annotations and services to get 
+        the Java Temporal SDK client up and working with a grails application. 
+        '''
+    def profiles = ['web', 'rest']
+    def license = "APACHE"
+    def scm = [url: "https://github.com/cristian-com/temporal-grails-plugin/"]
 
-    // URL to the plugin's documentation
-    def documentation = "http://grails.org/plugin/temporal-plugin"
-
-    // Extra (optional) plugin metadata
-
-    // License: one of 'APACHE', 'GPL2', 'GPL3'
-//    def license = "APACHE"
-
-    // Details of company behind the plugin (if there is one)
-//    def organization = [ name: "My Company", url: "http://www.my-company.com/" ]
-
-    // Any additional developers beyond the author specified above.
-//    def developers = [ [ name: "Joe Bloggs", email: "joe@bloggs.net" ]]
-
-    // Location of the plugin's issue tracker.
-//    def issueManagement = [ system: "JIRA", url: "http://jira.grails.org/browse/GPMYPLUGIN" ]
-
-    // Online location of the plugin's browseable source code.
-//    def scm = [ url: "http://svn.codehaus.org/grails-plugins/" ]
-
-    Closure doWithSpring() { { ->
-            print("")
-            // TODO Implement runtime spring config (optional)
+    Closure doWithSpring() {
+        { ->
         }
-    }
-
-    void doWithDynamicMethods() {
-        // TODO Implement registering dynamic methods to classes (optional)
-    }
-
-    void doWithApplicationContext() {
-        // TODO Implement post initialization spring config (optional)
     }
 
     void onChange(Map<String, Object> event) {

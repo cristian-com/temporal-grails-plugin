@@ -34,8 +34,9 @@ class ExamplesControllerSpec extends Specification  {
                         println "${theField.hello} !!!!!!!!"
                     }
                 }
-                def c = new Subject()
-                c.hello()
+            
+                def var = new Subject()
+                var.hello()
             '''
         expect:
         groovy.test.GroovyAssert.assertScript( script )
